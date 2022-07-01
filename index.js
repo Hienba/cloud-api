@@ -7,9 +7,11 @@ server.use(middlewares);
 server.use(jsonServer.bodyParser);
 server.use("/api", router);
 
-server.listen(3000, () => {
-  console.log("JSON Server is running");
-});
 router.render = (req, res) => {
   res.jsonp({ data: res.locals.data });
 };
+
+const port = process.env.PORT || 3000;
+server.listen(port, () => {
+  console.log("JSON Server is running");
+});
