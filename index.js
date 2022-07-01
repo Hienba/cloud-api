@@ -11,7 +11,7 @@ router.render = (req, res) => {
   res.jsonp({ data: res.locals.data });
 };
 
-const port = process.env.PORT || 3000;
-server.listen(port, () => {
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
   console.log("JSON Server is running");
 });
