@@ -1,26 +1,32 @@
-import Products from "../models/producModel";
+import Products from "../models/products";
 import { APIfeatures } from "../lib/features";
 
-const productCtr = {
+const productCtrl = {
   getProducts: async (req, res) => {
     try {
       const features = new APIfeatures(Products.find(), req.query)
         .paginating()
         .sorting()
-        .searching()
-        .filtering();
-
+        .filtering()
+        .searching();
       const result = await Promise.allSettled([
-        features.query,
-        Products.countDocuments(), //count number of products.
+        features.query.exec(),
+        Products.countDocuments().exec(),
       ]);
-
       const products = result[0].status === "fulfilled" ? result[0].value : [];
       const count = result[1].status === "fulfilled" ? result[1].value : 0;
-
-      return res.status(200).json({ products, count });
+      const pagination = {
+        total: count,
+        limit: features.queryString.limit * 1 || 100,
+        page: features.queryString.page * 1 || 1,
+        pages: Math.ceil(count / features.queryString.limit),
+      };
+      res.status(200).json({
+        products,
+        pagination,
+      });
     } catch (err) {
-      return res.status(500).json({ msg: err.message });
+      res.status(500).json({ message: err.message });
     }
   },
   getProduct: async (req, res) => {
@@ -37,58 +43,44 @@ const productCtr = {
   },
   addProduct: async (req, res) => {
     try {
-      const { title, price, description, category, image } = req.body;
-
+      const { title, price, description, image } = req.body;
       const newProduct = new Products({
         title,
         price,
         description,
-        category,
         image,
       });
       await newProduct.save();
-
-      return res.status(200).json(newProduct);
     } catch (err) {
-      return res.status(500).json({ msg: err.message });
+      res.status(500).json({ message: err.message });
     }
   },
   updateProduct: async (req, res) => {
     try {
-      const { title, price, description, category, image } = req.body;
-
+      const { title, price, description, image } = req.body;
       const product = await Products.findByIdAndUpdate(
         req.params.id,
+        { title, price, description, image },
         {
-          title,
-          price,
-          description,
-          category,
-          image,
-        },
-        { new: true }
+          new: true,
+        }
       );
-
       if (!product)
         return res.status(404).json({ msg: "This product does not exist." });
-
       return res.status(200).json(product);
-    } catch (err: any) {
+    } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
   },
   deleteProduct: async (req, res) => {
     try {
       const product = await Products.findByIdAndDelete(req.params.id);
-
       if (!product)
         return res.status(404).json({ msg: "This product does not exist." });
-
-      return res.status(200).json({ msg: "Delete Success!" });
+      return res.status(200).json(product);
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
   },
 };
-
-export default productCtr;
+export default productCtrl;
