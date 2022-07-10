@@ -28,7 +28,7 @@ const productSchema = new mongoose.Schema(
   }
 );
 const Products = mongoose.model("Products", productSchema);
-Products.createIndexes();
-productSchema.index({ title: "text" });
+//Products.createIndexes();
+//productSchema.index({ title: "text" });
 
 export default Products;
