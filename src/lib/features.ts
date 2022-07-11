@@ -15,6 +15,8 @@ export function APIfeatures(query, queryString) {
     if (this.queryString.sort) {
       const sortBy = this.queryString.sort.split(",").join(" ");
       this.query = this.query.sort(sortBy);
+    } else {
+      this.query = this.query.sort("-createdAt");
     }
     return this;
   };
@@ -32,10 +34,13 @@ export function APIfeatures(query, queryString) {
     const search = this.queryString.search;
     if (search) {
       this.query = this.query.find({
-        title: { $regex: search, $options: "i" },
-        // description: { $regex: search, $options: "i" },
+        $or: [
+          { title: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } },
+        ],
       });
     }
+
     return this;
   };
 }

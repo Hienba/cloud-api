@@ -1,27 +1,10 @@
 export const checkProductData = async (req, res, next) => {
-  // const { title, price, description, category, image } = req.body;
-
+  const { title, price, description, image } = req.body;
   const errors = [];
-  // for..in, for..of, for..each
-  for (const key in req.body) {
-    if (!req.body[key]) {
-      errors.push(`Please add product ${key}.`);
-    }
-  }
-  // Object.entries(req.body).forEach(([key, value]) => {
-  //   if(!value){
-  //     errors.push(`Please add product ${key}.`)
-  //   }
-  // })
-
-  // for (const key of Object.keys(req.body)) {
-  //   // console.log(key, req.body[key]);
-  //   if(!req.body[key]){
-  //     errors.push(`Please add product ${key}.`)
-  //   }
-  // }
-
+  if (!title) errors.push("Please add a title.");
+  if (!price) errors.push("Please add a price.");
+  if (!description) errors.push("Please add a description.");
+  if (!image) errors.push("Please add an image.");
   if (errors.length > 0) return res.status(401).json({ msg: errors });
-
   next();
 };

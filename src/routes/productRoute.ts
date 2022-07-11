@@ -4,14 +4,14 @@ import { checkProductData } from "../middleware/validate";
 
 const router = express.Router();
 
-router.get("/products", productCtrl.getProducts);
+router.get("/", productCtrl.getProducts);
 
-router.get("/products/:id", productCtrl.getProduct);
+router.get("/:id", productCtrl.getProduct);
 
-router.post("/products", checkProductData, productCtrl.addProduct);
+router.post("/", checkProductData, productCtrl.addProduct);
 
-router.put("/products/:id", checkProductData, productCtrl.updateProduct);
+router.put("/:id", checkProductData, productCtrl.updateProduct);
 
-router.delete("/products/:id", productCtrl.deleteProduct);
+router.delete("/:id", productCtrl.deleteProduct);
 
 export default router;

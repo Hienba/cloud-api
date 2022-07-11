@@ -13,7 +13,7 @@ const productCtrl = {
         features.query.exec(),
         Products.countDocuments().exec(),
       ]);
-      const products = result[0].status === "fulfilled" ? result[0].value : [];
+      const data = result[0].status === "fulfilled" ? result[0].value : [];
       const count = result[1].status === "fulfilled" ? result[1].value : 0;
       const pagination = {
         total: count,
@@ -21,10 +21,17 @@ const productCtrl = {
         page: features.queryString.page * 1 || 1,
         pages: Math.ceil(count / features.queryString.limit),
       };
-      res.status(200).json({
-        products,
+      const type = req.query.type;
+      const response = {
+        data,
         pagination,
-      });
+        type,
+      };
+      if (type === "more") {
+        res.status(200).json(response);
+      } else {
+        res.status(200).json(response.data);
+      }
     } catch (err) {
       res.status(500).json({ message: err.message });
     }

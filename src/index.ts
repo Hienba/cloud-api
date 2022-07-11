@@ -23,6 +23,6 @@ mongoose
 app.use(bodyParser.json());
 app.use(cors());
 app.use(morgan("dev"));
-app.use("/api", productRoute);
+app.use("/api/products", productRoute);
 
 app.listen(port, () => console.log(`Server is running at port ${port}`));
