@@ -22,15 +22,13 @@ const productCtrl = {
         pages: Math.ceil(count / features.queryString.limit),
       };
       const type = req.query.type;
-      const response = {
-        data,
-        pagination,
-        type,
-      };
       if (type === "more") {
-        res.status(200).json(response);
+        res.json({ data, pagination });
+      }
+      if (type === "less") {
+        res.json({ data });
       } else {
-        res.status(200).json(response.data);
+        res.status(200).json({ data });
       }
     } catch (err) {
       res.status(500).json({ message: err.message });
