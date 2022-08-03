@@ -4,7 +4,17 @@ import User from "../models/user.js";
 
 export const register = async (req, res) => {
   const { username, password, email } = req.body;
+  req.body.password = CryptoJS.AES.encrypt(
+    password,
+    process.env.ENCRYPT_SECRET_KEY
+  ).toString();
   try {
+    const user = await User.findOne({ email });
+    if (user) {
+      return res.status(400).json({
+        msg: "Username already exists.",
+      });
+    }
     const token = jsonwebtoken.sign(
       {
         username,
@@ -39,10 +49,7 @@ export const activate = async (req, res) => {
       if (!user) {
         const newUser = new User({
           username,
-          password: CryptoJS.AES.encrypt(
-            password,
-            process.env.ENCRYPT_SECRET_KEY
-          ).toString(),
+          password,
           email,
         });
         await newUser.save();
@@ -87,6 +94,64 @@ export const login = async (req, res) => {
       username,
       token,
     });
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+};
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ msg: "User not found." });
+    }
+    const token = jsonwebtoken.sign(
+      {
+        email: email,
+        username: user.username,
+      },
+      process.env.FORGOT_PASSWORD_SECRET_KEY,
+      {
+        expiresIn: "1h",
+      }
+    );
+    res.status(200).json({
+      msg: "Password reset link sent to email.",
+      token,
+    });
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+};
+export const resetPassword = async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (token) {
+      const decoded = jsonwebtoken.verify(
+        token,
+        process.env.FORGOT_PASSWORD_SECRET_KEY
+      );
+      const { username, email } = decoded;
+      const user = await User.findOne({ username });
+      if (!user) {
+        return res.status(401).json({ msg: "User not found." });
+      }
+      if (user.email !== email) {
+        return res.status(401).json({ msg: "Invalid email." });
+      }
+      const { password } = req.body;
+      const newPassword = CryptoJS.AES.encrypt(
+        password,
+        process.env.ENCRYPT_SECRET_KEY
+      ).toString();
+      await user.save({
+        password: newPassword,
+      });
+      res.status(200).json({ msg: "Password reset successfully." });
+    } else {
+      return res.status(401).json({ msg: "Invalid token." });
+    }
   } catch (err) {
     res.status(500).json({ msg: err.message });
   }

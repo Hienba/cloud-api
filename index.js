@@ -2,6 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import mongoose from "mongoose";
+import morgan from "morgan";
 import dotenv from "dotenv";
 
 import productRoute from "./routes/productRoute.js";
@@ -16,6 +17,7 @@ const mongoURI = process.env.MONGODB_URI;
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());
+app.use(morgan("dev"));
 app.use("/api/products", productRoute);
 app.use("/api/auth", authRoute);
 
