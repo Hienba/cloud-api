@@ -53,7 +53,7 @@ export const activate = async (req, res) => {
           email,
         });
         await newUser.save();
-        res.status(200).json({ msg: "User created." });
+        res.status(200).json({ msg: "User created successfully" });
       } else {
         res.status(401).json({ msg: "User already exists." });
       }
